@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekly Task Form</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tom Select CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 py-10">
@@ -13,27 +15,30 @@
     <h1 class="text-3xl font-bold text-center mb-8">Weekly Task Form</h1>
 
     <form id="taskForm" class="space-y-8" action="/submit" method="POST">
-        <input type="hidden" name="user_id" value="{{ user_id }}">
-        <input type="hidden" name="task_count" id="taskCountInput">
-      
-        <div id="tasksContainer"></div>
-      
-        <div class="flex justify-between">
-          <button type="button" id="addTaskButton"
-            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
-            Add Task
-          </button>
-          <button type="button" id="removeTaskButton"
-            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-            Remove Last Task
-          </button>
-          <button type="submit"
-            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-            Submit All
-          </button>
-        </div>
+      <input type="hidden" name="user_id" value="{{ user_id }}">
+      <input type="hidden" name="task_count" id="taskCountInput">
+
+      <div id="tasksContainer"></div>
+
+      <div class="flex justify-between">
+        <button type="button" id="addTaskButton"
+          class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+          Add Task
+        </button>
+        <button type="button" id="removeTaskButton"
+          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+          Remove Last Task
+        </button>
+        <button type="submit"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+          Submit All
+        </button>
+      </div>
     </form>
   </div>
+
+  <!-- Tom Select JS -->
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
   <script>
     let taskCount = 0;
@@ -65,18 +70,17 @@
 
           <div>
             <label class="block font-medium mb-1">Dependencies <span class="text-red-500">*</span></label>
-            <select multiple class="w-full border p-2 rounded dependencies h-32">
-              <option value="">Select Dependencies</option>
-              <option>Manoj</option>
-              <option>Prashanth</option>
-              <option>Saranya</option>
-              <option>Sandesh</option>
-              <option>Vivek</option>
-              <option>Pavithra</option>
-              <option>Adi</option>
-              <option>Akshitha</option>
-              <option>Sharon</option>
-              <option>None</option>
+            <select class="w-full dependencies" multiple placeholder="Select dependencies...">
+              <option value="Manoj">Manoj</option>
+              <option value="Prashanth">Prashanth</option>
+              <option value="Saranya">Saranya</option>
+              <option value="Sandesh">Sandesh</option>
+              <option value="Vivek">Vivek</option>
+              <option value="Pavithra">Pavithra</option>
+              <option value="Adi">Adi</option>
+              <option value="Akshitha">Akshitha</option>
+              <option value="Sharon">Sharon</option>
+              <option value="None">None</option>
             </select>
             <p class="error-message text-red-500 text-sm hidden">Dependency is required.</p>
           </div>
@@ -115,24 +119,24 @@
         </div>
       `;
       document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', taskHTML);
+
+      // Initialize Tom Select for the new dependencies dropdown
+      new TomSelect('.dependencies', {
+        plugins: ['remove_button'],
+        create: false,
+        maxItems: null,
+      });
     }
 
     function removeLastTask() {
-  const tasks = document.querySelectorAll('.task');
-  if (tasks.length > 0) {
-    tasks[tasks.length - 1].remove();
-    taskCount--;
-  } else {
-    alert('No tasks to remove!');
-  }
-}
-function updateTaskNumbers() {
-  const tasks = document.querySelectorAll('.task');
-  tasks.forEach((task, index) => {
-    task.querySelector('h2').textContent = `Task ${index + 1}`;
-  });
-}
-
+      const tasks = document.querySelectorAll('.task');
+      if (tasks.length > 0) {
+        tasks[tasks.length - 1].remove();
+        taskCount--;
+      } else {
+        alert('No tasks to remove!');
+      }
+    }
 
     function validateAllTasks() {
       let isValid = true;
@@ -148,8 +152,8 @@ function updateTaskNumbers() {
         const taskHow = task.querySelector('.task_how');
         const taskHowError = task.querySelector('.task_how + .error-message');
 
-        const Dependencies = task.querySelector('.dependencies');
-        const DependenciesError = task.querySelector('.dependencies + .error-message');
+        const dependencies = task.querySelector('.dependencies');
+        const dependenciesError = task.querySelector('.dependencies + .error-message');
 
         const timeValue = task.querySelector('.time_value');
         const timeUnit = task.querySelector('.time_unit');
@@ -189,14 +193,13 @@ function updateTaskNumbers() {
         }
 
         // Validate Dependencies
-        const selectedDependencies = Array.from(Dependencies.selectedOptions).map(option => option.value);
-if (selectedDependencies.length === 0) {
-  DependenciesError.classList.remove('hidden');
-  isValid = false;
-} else {
-  DependenciesError.classList.add('hidden');
-}
-
+        const selectedDependencies = Array.from(dependencies.selectedOptions).map(option => option.value);
+        if (selectedDependencies.length === 0) {
+          dependenciesError.classList.remove('hidden');
+          isValid = false;
+        } else {
+          dependenciesError.classList.add('hidden');
+        }
 
         // Validate Estimated Time
         if (timeValue.value.trim() === '' || timeUnit.value === '') {
@@ -206,19 +209,7 @@ if (selectedDependencies.length === 0) {
           timeError.classList.add('hidden');
         }
 
-        if (isValid) {
-          tasks.push({
-  taskName: taskName.value,
-  dependencies: selectedDependencies,
-  estimatedTime: {
-    value: timeValue.value,
-    unit: timeUnit.value
-  }
-});
-
-        }
-
-        // Validate Great performance
+        // Validate Great Performance
         if (greatPerformance.value === '') {
           greatPerformanceError.classList.remove('hidden');
           isValid = false;
@@ -226,7 +217,7 @@ if (selectedDependencies.length === 0) {
           greatPerformanceError.classList.add('hidden');
         }
 
-        // Validate Good performance
+        // Validate Good Performance
         if (goodPerformance.value === '') {
           goodPerformanceError.classList.remove('hidden');
           isValid = false;
@@ -234,7 +225,7 @@ if (selectedDependencies.length === 0) {
           goodPerformanceError.classList.add('hidden');
         }
 
-        // Validate Bad performance
+        // Validate Bad Performance
         if (badPerformance.value === '') {
           badPerformanceError.classList.remove('hidden');
           isValid = false;
@@ -242,51 +233,63 @@ if (selectedDependencies.length === 0) {
           badPerformanceError.classList.add('hidden');
         }
 
+        if (isValid) {
+          tasks.push({
+            taskName: taskName.value,
+            dependencies: selectedDependencies,
+            estimatedTime: {
+              value: timeValue.value,
+              unit: timeUnit.value
+            },
+            greatPerformance: greatPerformance.value,
+            goodPerformance: goodPerformance.value,
+            badPerformance: badPerformance.value
+          });
+        }
       });
 
       return { isValid, tasks };
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-  createTaskForm(); // Load first task on page load
+      createTaskForm(); // Load first task on page load
 
-  document.getElementById('addTaskButton').addEventListener('click', () => {
-    createTaskForm();
-  });
-  document.getElementById('removeTaskButton').addEventListener('click', removeLastTask);
+      document.getElementById('addTaskButton').addEventListener('click', () => {
+        createTaskForm();
+      });
 
+      document.getElementById('removeTaskButton').addEventListener('click', removeLastTask);
 
-  document.getElementById('taskForm').addEventListener('submit', (e) => {
-    e.preventDefault();
+      document.getElementById('taskForm').addEventListener('submit', (e) => {
+        e.preventDefault();
 
-    const validationResult = validateAllTasks();
-    if (validationResult.isValid) {
-      // Include the task count in the JSON payload
-      const payload = {
-        user_id: document.querySelector('input[name="user_id"]').value,
-        task_count: taskCount,
-        tasks: validationResult.tasks,
-      };
+        const validationResult = validateAllTasks();
+        if (validationResult.isValid) {
+          const payload = {
+            user_id: document.querySelector('input[name="user_id"]').value,
+            task_count: taskCount,
+            tasks: validationResult.tasks,
+          };
 
-      fetch(`/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
-        .then(response => response.json())
-        .then(data => {
-          alert('Tasks submitted successfully!');
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-    } else {
-      alert('Please fill out all required fields in every task.');
-    }
-  });
-});
+          fetch(`/submit`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          })
+            .then(response => response.json())
+            .then(data => {
+              alert('Tasks submitted successfully!');
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        } else {
+          alert('Please fill out all required fields in every task.');
+        }
+      });
+    });
   </script>
 </body>
 
