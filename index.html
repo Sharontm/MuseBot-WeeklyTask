@@ -23,6 +23,10 @@
             class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
             Add Task
           </button>
+          <button type="button" id="removeTaskButton"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+            Remove Last Task
+          </button>
           <button type="submit"
             class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
             Submit All
@@ -35,7 +39,8 @@
     let taskCount = 0;
 
     function createTaskForm() {
-      taskCount++;
+      const currentTasks = document.querySelectorAll('.task').length;
+      taskCount = currentTasks + 1;
       const taskHTML = `
         <div class="task p-6 border border-gray-300 rounded-lg mb-6 bg-gray-50 space-y-5">
           <h2 class="text-2xl font-semibold mb-4">Task ${taskCount}</h2>
@@ -109,6 +114,23 @@
       `;
       document.getElementById('tasksContainer').insertAdjacentHTML('beforeend', taskHTML);
     }
+
+    function removeLastTask() {
+  const tasks = document.querySelectorAll('.task');
+  if (tasks.length > 0) {
+    tasks[tasks.length - 1].remove();
+    taskCount--;
+  } else {
+    alert('No tasks to remove!');
+  }
+}
+function updateTaskNumbers() {
+  const tasks = document.querySelectorAll('.task');
+  tasks.forEach((task, index) => {
+    task.querySelector('h2').textContent = `Task ${index + 1}`;
+  });
+}
+
 
     function validateAllTasks() {
       let isValid = true;
@@ -227,6 +249,8 @@
   document.getElementById('addTaskButton').addEventListener('click', () => {
     createTaskForm();
   });
+  document.getElementById('removeTaskButton').addEventListener('click', removeLastTask);
+
 
   document.getElementById('taskForm').addEventListener('submit', (e) => {
     e.preventDefault();
