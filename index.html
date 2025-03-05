@@ -65,7 +65,7 @@
 
           <div>
             <label class="block font-medium mb-1">Dependencies <span class="text-red-500">*</span></label>
-            <select class="w-full border p-2 rounded dependencies">
+            <select multiple class="w-full border p-2 rounded dependencies h-32">
               <option value="">Select Dependencies</option>
               <option>Manoj</option>
               <option>Prashanth</option>
@@ -189,12 +189,14 @@ function updateTaskNumbers() {
         }
 
         // Validate Dependencies
-        if (Dependencies.value === '') {
-          DependenciesError.classList.remove('hidden');
-          isValid = false;
-        } else {
-          DependenciesError.classList.add('hidden');
-        }
+        const selectedDependencies = Array.from(Dependencies.selectedOptions).map(option => option.value);
+if (selectedDependencies.length === 0) {
+  DependenciesError.classList.remove('hidden');
+  isValid = false;
+} else {
+  DependenciesError.classList.add('hidden');
+}
+
 
         // Validate Estimated Time
         if (timeValue.value.trim() === '' || timeUnit.value === '') {
@@ -206,14 +208,14 @@ function updateTaskNumbers() {
 
         if (isValid) {
           tasks.push({
-            taskName: taskName.value,
-            priority: priority.value,
-            description: description.value,
-            estimatedTime: {
-              value: timeValue.value,
-              unit: timeUnit.value
-            }
-          });
+  taskName: taskName.value,
+  dependencies: selectedDependencies,
+  estimatedTime: {
+    value: timeValue.value,
+    unit: timeUnit.value
+  }
+});
+
         }
 
         // Validate Great performance
